@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'selenium-webdriver'
 require 'nokogiri'
+require 'set'
 
 def get_last_page doc
   doc.css('div.Pages a[href*="contacts/"]').map { |elem|
@@ -28,7 +29,6 @@ def process_list what, username, web
   last_page = get_last_page doc
   names = get_names doc
 
-  last_page = 5
   (2..last_page).each { |page|
     puts "Fetching #{what} page #{page}..."
     url = base_url + "?page=#{page}"
@@ -41,6 +41,12 @@ def process_list what, username, web
   names
 end
 
+def show_list flist
+  flist.each_with_index { |name, i|
+    puts "#{i+1}: #{name[:id]} - #{name[:name]}"
+  }
+end
+
 if ARGV.size < 1
   warn "Usage: $0 username"
   exit 1
@@ -49,14 +55,16 @@ end
 username = ARGV[0]
 web = Selenium::WebDriver.for :safari
 
-names = process_list :following, username, web
-names.each_with_index { |name, i|
-  puts "#{i+1}: #{name[:id]} - #{name[:name]}"
-}
+following = Set.new(process_list :following, username, web)
+follower = Set.new(process_list :follower, username, web)
 
-names = process_list :follower, username, web
-names.each_with_index { |name, i|
-  puts "#{i+1}: #{name[:id]} - #{name[:name]}"
-}
+puts 'Mutual followers:'
+show_list(following & follower)
+
+puts 'Only followers:'
+show_list(follower - following)
+
+puts 'Only following:'
+show_list(following - follower)
 
 __END__
