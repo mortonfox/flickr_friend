@@ -26,6 +26,13 @@ def get_names doc
   }
 end
 
+# Get the user name.
+def get_user_name web
+  m = web.current_url.match(%r{people/(.+)/contacts})
+  fail 'Unable to retrieve user name. Please log in to Flickr before running this script.' unless m
+  m[1]
+end
+
 # Process the contact list, returning a list of users from all the pages in
 # the list.
 def process_list what, web
@@ -34,11 +41,11 @@ def process_list what, web
   base_url = 'https://www.flickr.com/people/me/contacts/'
   base_url += 'rev/' if what == :follower
   web.get base_url
+  username = get_user_name web
 
   doc = Nokogiri.HTML web.page_source
   last_page = get_last_page doc
   names = get_names doc
-  username = web.current_url.match(%r{people/(.+)/contacts})[1]
 
   # Only the first page can use people/me. Subsequent pages need the actual
   # user name.
