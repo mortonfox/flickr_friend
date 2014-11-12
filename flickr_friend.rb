@@ -12,7 +12,7 @@ require 'set'
 # Find the highest-numbered page by parsing the pages links.
 def get_last_page doc
   doc.css('div.Pages a[href*="contacts/"]').map { |elem|
-    elem['href'].match(%r(contacts(?:/rev)?/\?page=(\d+)))[1].to_i
+    elem['href'].match(%r{contacts(?:/rev)?/\?page=(\d+)})[1].to_i
   }.max
 end
 
@@ -20,7 +20,7 @@ end
 def get_names doc
   doc.css('td.contact-list-name').map { |elem|
     a_elem = elem.css('a').first
-    id = a_elem['href'].match(%r(photos/(.*)/))[1]
+    id = a_elem['href'].match(%r{photos/(.*)/})[1]
     name = a_elem.children.first.to_s
     { id: id, name: name }
   }
@@ -31,14 +31,14 @@ end
 def process_list what, web
   puts "Fetching #{what} page 1..."
 
-  base_url = "https://www.flickr.com/people/me/contacts/"
+  base_url = 'https://www.flickr.com/people/me/contacts/'
   base_url += 'rev/' if what == :follower
   web.get base_url
 
   doc = Nokogiri.HTML web.page_source
   last_page = get_last_page doc
   names = get_names doc
-  username = web.current_url.match(%r(people/(.+)/contacts))[1]
+  username = web.current_url.match(%r{people/(.+)/contacts})[1]
 
   # Only the first page can use people/me. Subsequent pages need the actual
   # user name.
@@ -47,8 +47,7 @@ def process_list what, web
 
   (2..last_page).each { |page|
     puts "Fetching #{what} page #{page}..."
-    url = base_url + "?page=#{page}"
-    web.get url
+    web.get "#{base_url}?page=#{page}"
 
     doc = Nokogiri.HTML web.page_source
     names += get_names doc
@@ -59,7 +58,7 @@ end
 
 def show_list flist
   flist.each_with_index { |name, i|
-    puts "#{i+1}: #{name[:id]} - #{name[:name]}"
+    puts "#{i + 1}: #{name[:id]} - #{name[:name]}"
   }
 end
 
