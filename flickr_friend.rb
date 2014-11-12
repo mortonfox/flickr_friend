@@ -2,16 +2,8 @@
 
 # This script uses Selenium WebDriver, Nokogiri and Safari to scrape the
 # Flickr friends and followers lists of the currently logged-in Flickr user.
-# Then it generates 3 sets: mutual friends, only followers, and only
-# following.
-#
-# The reason we need to scrape the Flickr website is while the Flickr API has
-# an endpoint for retrieving the user's following list, it offers no way to
-# retrieve the followers.
-#
-# The script uses Safari because that is the only browser that runs under
-# Selenium with the user's cookies. Chrome and Firefox launch as
-# blank/incognito browsers under Selenium.
+# Then it groups the contacts into 3 sets: mutual friends, only followers, and
+# only following.
 
 require 'selenium-webdriver'
 require 'nokogiri'
