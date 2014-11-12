@@ -1,14 +1,30 @@
 #!/usr/bin/env ruby
+
+# This script uses Selenium WebDriver, Nokogiri and Safari to scrape the
+# Flickr friends and followers lists of the currently logged-in Flickr user.
+# Then it generates 3 sets: mutual friends, only followers, and only
+# following.
+#
+# The reason we need to scrape the Flickr website is while the Flickr API has
+# an endpoint for retrieving the user's following list, it offers no way to
+# retrieve the followers.
+#
+# The script uses Safari because that is the only browser that runs under
+# Selenium with the user's cookies. Chrome and Firefox launch as
+# blank/incognito browsers under Selenium.
+
 require 'selenium-webdriver'
 require 'nokogiri'
 require 'set'
 
+# Find the highest-numbered page by parsing the pages links.
 def get_last_page doc
   doc.css('div.Pages a[href*="contacts/"]').map { |elem|
     elem['href'].match(%r(contacts(?:/rev)?/\?page=(\d+)))[1].to_i
   }.max
 end
 
+# Parse user IDs and names from the contact list.
 def get_names doc
   doc.css('td.contact-list-name').map { |elem|
     a_elem = elem.css('a').first
@@ -18,6 +34,8 @@ def get_names doc
   }
 end
 
+# Process the contact list, returning a list of users from all the pages in
+# the list.
 def process_list what, web
   puts "Fetching #{what} page 1..."
 
@@ -54,7 +72,6 @@ def show_list flist
 end
 
 web = nil
-
 begin
   web = Selenium::WebDriver.for :safari
 
