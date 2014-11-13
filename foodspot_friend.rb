@@ -9,6 +9,7 @@ require 'selenium-webdriver'
 require 'nokogiri'
 require 'set'
 
+# Get the user name.
 def get_user_name web
   puts 'Getting user name...'
   url = 'http://foodspotting.com/me'
@@ -44,19 +45,41 @@ def process_list what, username, web
 
   doc = Nokogiri.HTML web.page_source
   last_page = get_last_page doc
-  puts "Last page is #{last_page}"
   names = get_names doc
-  p names
+
+  (2..last_page).each { |page|
+    puts "Fetching #{what} page #{page}..."
+    web.get "#{url}?page=#{page}"
+
+    doc = Nokogiri.HTML web.page_source
+    names += get_names doc
+  }
+
+  names
+end
+
+def show_list flist
+  flist.each_with_index { |name, i|
+    puts "#{i + 1}: #{name[:id]} - #{name[:name]}"
+  }
 end
 
 web = nil
 begin
   web = Selenium::WebDriver.for :safari
   username = get_user_name web
-  p username
 
-  process_list :followers, username, web
-  process_list :following, username, web
+  followers = Set.new(process_list :followers, username, web)
+  following = Set.new(process_list :following, username, web)
+
+  puts 'Mutual followers:'
+  show_list(following & followers)
+
+  puts 'Only followers:'
+  show_list(followers - following)
+
+  puts 'Only following:'
+  show_list(following - followers)
 ensure
   web.close if web
 end
