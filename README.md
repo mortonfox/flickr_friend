@@ -1,7 +1,7 @@
 # flickr\_friend
 
 This script uses [Selenium WebDriver](http://www.seleniumhq.org/),
-[Nokogiri](http://www.nokogiri.org/) and Safari to scrape the Flickr friends
+[Nokogiri](http://www.nokogiri.org/) and Safari to scrape the [Flickr](https://www.flickr.com) friends
 and followers lists of the currently logged-in Flickr user. Then it groups the
 contacts into 3 sets: mutual friends, only followers, and only following.
 
@@ -39,8 +39,20 @@ Then you need to install the required Ruby gems:
 
 ## Usage
 
-First, make sure that you're already logged in to Flickr on Safari.
+First, make sure that you're already logged in to Flickr on the Safari browser.
 
 Then run the script:
 
     ruby flickr_friend.rb
+
+## foodspot\_friend
+
+This script is similar to flickr\_friend, except that it is for the
+[Foodspotting](http://www.foodspotting.com) website instead.
+
+To use it, first make sure that you're already logged in to Foodspotting on the Safari browser.
+
+Then run the script:
+
+    ruby foodspot_friend.rb
+
