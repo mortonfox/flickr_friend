@@ -22,7 +22,7 @@ end
 # Find the highest-numbered page by parsing the pages links.
 def get_last_page doc
   doc.css('div.pagination a[href*="?page="]').map { |elem|
-    elem['href'].match(%r{\?page=(\d+)})[1].to_i
+    elem['href'].match(/\?page=(\d+)/)[1].to_i
   }.max
 end
 
