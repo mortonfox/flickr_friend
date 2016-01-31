@@ -69,8 +69,8 @@ begin
   web = Selenium::WebDriver.for :safari
   username = get_user_name web
 
-  followers = Set.new(process_list :followers, username, web)
-  following = Set.new(process_list :following, username, web)
+  followers = Set.new(process_list(:followers, username, web))
+  following = Set.new(process_list(:following, username, web))
 
   puts 'Mutual followers:'
   show_list(following & followers)

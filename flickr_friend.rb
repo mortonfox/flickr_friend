@@ -73,8 +73,8 @@ web = nil
 begin
   web = Selenium::WebDriver.for :safari
 
-  following = Set.new(process_list :following, web)
-  follower = Set.new(process_list :follower, web)
+  following = Set.new(process_list(:following, web))
+  follower = Set.new(process_list(:follower, web))
 
   puts 'Mutual followers:'
   show_list(following & follower)
