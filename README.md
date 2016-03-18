@@ -11,27 +11,17 @@ an endpoint for retrieving the user's following list, it still doesn't have a
 way to retrieve the user's followers.
 
 Selenium WebDriver works with some of the most common web browsers. The reason
-for preferring Safari here is because Selenium is able to launch a Safari
+for choosing Safari here is because Selenium is able to launch a Safari
 instance with the user's cookies, avoiding the need to log in to Flickr again.
 Chrome and Firefox, on the other hand, launch as blank/incognito browsers under
 Selenium.
 
 ## Installation
 
-First, you need to get the Selenium Standalone Server up and running.
+First, you need to install SafariDriver:
 
-* Download Selenium Server from [Selenium Downloads](http://www.seleniumhq.org/download/)
-* Run Selenium Server like so: ```java -jar selenium-server-standalone-2.44.0.jar```
-
-The [SafariDriver](https://code.google.com/p/selenium/wiki/SafariDriver)
-browser extension is bundled with Selenium Server. However, it doesn't seem to
-get installed automatically under OS X Yosemite (and possibly Mavericks too).
-Fortunately, it is easy to add the browser extension by hand:
-
-    mkdir selenium
-    cd selenium
-    tar xvf ../selenium-server-standalone-2.44.0.jar
-    open org/openqa/selenium/safari/SafariDriver.safariextz
+* Download SafariDriver from [Selenium Downloads](http://www.seleniumhq.org/download/)
+* Open SafariDriver.safariextz in Finder. This will install the extension.
 
 Then you need to install the required Ruby gems:
 
