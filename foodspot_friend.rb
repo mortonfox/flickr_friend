@@ -1,12 +1,11 @@
 #!/usr/bin/env ruby
 
-# This script uses Selenium WebDriver, Nokogiri and Safari to scrape the
-# friends and followers lists of the currently logged-in Foodspotting user.
+# This script uses Selenium WebDriver and Safari to scrape the friends and
+# followers lists of the currently logged-in Foodspotting user.
 # Then it groups the contacts into 3 sets: mutual friends, only followers, and
 # only following.
 
 require 'selenium-webdriver'
-require 'nokogiri'
 require 'set'
 
 # Get the user name.
@@ -20,17 +19,17 @@ def get_user_name web
 end
 
 # Find the highest-numbered page by parsing the pages links.
-def get_last_page doc
-  doc.css('div.pagination a[href*="?page="]').map { |elem|
-    elem['href'].match(/\?page=(\d+)/)[1].to_i
+def get_last_page web
+  web.find_elements(:css, 'div.pagination a[href*="?page="]').map { |elem|
+    elem.attribute('href').match(/\?page=(\d+)/)[1].to_i
   }.max
 end
 
 # Parse user IDs and names from the contact list.
-def get_names doc
-  doc.css('div.title a').map { |elem|
-    id = elem['href'].sub(%r{^/}, '')
-    name = elem.children.first.to_s
+def get_names web
+  web.find_elements(:css, 'div.title a').map { |elem|
+    id = elem.attribute('href').sub(%r{^/}, '')
+    name = elem.text.strip
     { id: id, name: name }
   }
 end
@@ -43,16 +42,14 @@ def process_list what, username, web
   url = "http://www.foodspotting.com/#{username}/#{what}"
   web.get url
 
-  doc = Nokogiri.HTML web.page_source
-  last_page = get_last_page doc
-  names = get_names doc
+  last_page = get_last_page web
+  names = get_names web
 
   (2..last_page).each { |page|
     puts "Fetching #{what} page #{page}..."
     web.get "#{url}?page=#{page}"
 
-    doc = Nokogiri.HTML web.page_source
-    names += get_names doc
+    names += get_names web
   }
 
   names
