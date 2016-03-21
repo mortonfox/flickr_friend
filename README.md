@@ -1,10 +1,9 @@
 # flickr\_friend
 
-This script uses [Selenium WebDriver](http://www.seleniumhq.org/),
-[Nokogiri](http://www.nokogiri.org/) and Safari to scrape the
-[Flickr](https://www.flickr.com) friends and followers lists of the currently
-logged-in Flickr user. Then it groups the contacts into 3 sets: mutual friends,
-only followers, and only following.
+This script uses [Selenium WebDriver](http://www.seleniumhq.org/) and Safari to
+scrape the [Flickr](https://www.flickr.com) friends and followers lists of the
+currently logged-in Flickr user. Then it groups the contacts into 3 sets:
+mutual friends, only followers, and only following.
 
 Web scraping is unfortunately necessary because while the Flickr API provides
 an endpoint for retrieving the user's following list, it still doesn't have a
@@ -23,10 +22,9 @@ First, you need to install SafariDriver:
 * Download SafariDriver from [Selenium Downloads](http://www.seleniumhq.org/download/)
 * Open SafariDriver.safariextz in Finder. This will install the extension.
 
-Then you need to install the required Ruby gems:
+Then you need to install the required Ruby gem:
 
     gem install selenium-webdriver
-    gem install nokogiri
 
 ## Usage
 
@@ -47,16 +45,4 @@ Safari browser.
 Then run the script:
 
     ruby foodspot_friend.rb
-
-## flickr\_friend\_oga and foodspot\_friend\_oga
-
-flickr\_friend\_oga.rb and foodspot\_friend\_oga.rb are the same as
-flickr\_friend.rb and foodspot\_friend.rb, except that these use
-[Oga](https://github.com/YorickPeterse/oga) instead of Nokogiri.
-
-Thus:
-
-    gem install oga
-    ruby flickr_friend_oga.rb
-    ruby foodspot_friend_oga.rb
 
