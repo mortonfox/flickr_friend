@@ -14,7 +14,7 @@ def get_user_name web
   url = 'http://foodspotting.com/me'
   web.get url
   m = web.current_url.match(%r{foodspotting\.com/([^/]+)$})
-  fail 'Unable to retrieve user name. Please log in to Foodspotting before running this script.' unless m
+  raise 'Unable to retrieve user name. Please log in to Foodspotting before running this script.' unless m
   m[1]
 end
 

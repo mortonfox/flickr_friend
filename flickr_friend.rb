@@ -28,7 +28,7 @@ end
 # Get the user name.
 def get_user_name web
   m = web.current_url.match(%r{people/(.+)/contacts})
-  fail 'Unable to retrieve user name. Please log in to Flickr before running this script.' unless m
+  raise 'Unable to retrieve user name. Please log in to Flickr before running this script.' unless m
   m[1]
 end
 
