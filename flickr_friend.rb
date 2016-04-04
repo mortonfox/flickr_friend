@@ -7,6 +7,7 @@
 
 require 'selenium-webdriver'
 require 'set'
+require 'optparse'
 
 # Find the highest-numbered page by parsing the pages links.
 def get_last_page web
@@ -66,6 +67,38 @@ def show_list flist
   }
 end
 
+options = {}
+
+optp = OptionParser.new
+
+optp.banner = "Usage: #{File.basename $PROGRAM_NAME} [options]"
+
+optp.on('-h', '-?', '--help', 'Option help') {
+  puts optp
+  exit
+}
+
+optp.on('-m', '--mutual', 'Show mutual friends') {
+  options[:mutual_friends] = true
+}
+
+optp.on('-r', '--only-friends', 'Show only-friends') {
+  options[:only_friends] = true
+}
+
+optp.on('-o', '--only-followers', 'Show only-followers') {
+  options[:only_followers] = true
+}
+
+optp.separator '  If none of -m/-r/-o are specified, display all 3 categories.'
+
+optp.parse!
+
+if !options[:mutual_friends] && !options[:only_friends] && !options[:only_followers]
+  # If none of the 3 options are specified, show everything.
+  options[:mutual_friends] = options[:only_friends] = options[:only_followers] = true
+end
+
 web = nil
 begin
   web = Selenium::WebDriver.for :safari
@@ -73,14 +106,20 @@ begin
   following = Set.new(process_list(:following, web))
   follower = Set.new(process_list(:follower, web))
 
-  puts 'Mutual followers:'
-  show_list(following & follower)
+  if options[:mutual_friends]
+    puts 'Mutual followers:'
+    show_list(following & follower)
+  end
 
-  puts 'Only followers:'
-  show_list(follower - following)
+  if options[:only_followers]
+    puts 'Only followers:'
+    show_list(follower - following)
+  end
 
-  puts 'Only following:'
-  show_list(following - follower)
+  if options[:only_friends]
+    puts 'Only following:'
+    show_list(following - follower)
+  end
 ensure
   web.close if web
 end
