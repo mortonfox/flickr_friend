@@ -34,6 +34,17 @@ Then run the script:
 
     ruby flickr_friend.rb
 
+You can control what this script outputs using the -m, -r, and -o options:
+
+    bash-4.3$ ruby flickr_friend.rb -h
+    Usage: flickr_friend.rb [options]
+        -h, -?, --help                   Option help
+        -m, --mutual                     Show mutual friends
+        -r, --only-friends               Show only-friends
+        -o, --only-followers             Show only-followers
+    If none of -m/-r/-o are specified, display all 3 categories.
+    bash-4.3$
+
 ## foodspot\_friend
 
 This script is similar to flickr\_friend, except that it is for the
