@@ -7,6 +7,7 @@
 
 require 'selenium-webdriver'
 require 'set'
+require 'optparse'
 
 # Get the user name.
 def get_user_name web
@@ -61,6 +62,38 @@ def show_list flist
   }
 end
 
+options = {}
+
+optp = OptionParser.new
+
+optp.banner = "Usage: #{File.basename $PROGRAM_NAME} [options]"
+
+optp.on('-h', '-?', '--help', 'Option help') {
+  puts optp
+  exit
+}
+
+optp.on('-m', '--mutual', 'Show mutual friends') {
+  options[:mutual_friends] = true
+}
+
+optp.on('-r', '--only-friends', 'Show only-friends') {
+  options[:only_friends] = true
+}
+
+optp.on('-o', '--only-followers', 'Show only-followers') {
+  options[:only_followers] = true
+}
+
+optp.separator '  If none of -m/-r/-o are specified, display all 3 categories.'
+
+optp.parse!
+
+if !options[:mutual_friends] && !options[:only_friends] && !options[:only_followers]
+  # If none of the 3 options are specified, show everything.
+  options[:mutual_friends] = options[:only_friends] = options[:only_followers] = true
+end
+
 web = nil
 begin
   web = Selenium::WebDriver.for :safari
@@ -69,14 +102,20 @@ begin
   followers = Set.new(process_list(:followers, username, web))
   following = Set.new(process_list(:following, username, web))
 
-  puts 'Mutual followers:'
-  show_list(following & followers)
+  if options[:mutual_friends]
+    puts 'Mutual followers:'
+    show_list(following & followers)
+  end
 
-  puts 'Only followers:'
-  show_list(followers - following)
+  if options[:only_followers]
+    puts 'Only followers:'
+    show_list(followers - following)
+  end
 
-  puts 'Only following:'
-  show_list(following - followers)
+  if options[:only_friends]
+    puts 'Only following:'
+    show_list(following - followers)
+  end
 ensure
   web.close if web
 end
