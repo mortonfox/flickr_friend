@@ -57,3 +57,14 @@ Then run the script:
 
     ruby foodspot_friend.rb
 
+You can control what this script outputs using the -m, -r, and -o options:
+
+    bash-4.3$ ruby foodspot_friend.rb -h
+    Usage: foodspot_friend.rb [options]
+        -h, -?, --help                   Option help
+        -m, --mutual                     Show mutual friends
+        -r, --only-friends               Show only-friends
+        -o, --only-followers             Show only-followers
+    If none of -m/-r/-o are specified, display all 3 categories.
+    bash-4.3$
+
