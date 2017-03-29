@@ -92,45 +92,56 @@ def setup_firefox_path
   Selenium::WebDriver::Firefox::Binary.path = File.join(firefox_app, 'Contents/MacOS/firefox')
 end
 
-options = {}
+def parse_opts
+  options = {}
 
-optp = OptionParser.new
+  optp = OptionParser.new
 
-optp.banner = <<-EOM
+  optp.banner = <<-EOM
 This script uses Selenium WebDriver and Firefox to scrape the Flickr friends
 and followers lists of a Flickr user.
 Then it groups the contacts into 3 sets: mutual friends, only followers, and
 only following.
 
 Usage: #{File.basename $PROGRAM_NAME} [options]
-EOM
+  EOM
 
-optp.on('-h', '-?', '--help', 'Option help') {
-  puts optp
-  exit
-}
+  optp.on('-h', '-?', '--help', 'Option help') {
+    puts optp
+    exit
+  }
 
-optp.on('-m', '--mutual', 'Show mutual friends') {
-  options[:mutual_friends] = true
-}
+  optp.on('-m', '--mutual', 'Show mutual friends') {
+    options[:mutual_friends] = true
+  }
 
-optp.on('-r', '--only-friends', 'Show only-friends') {
-  options[:only_friends] = true
-}
+  optp.on('-r', '--only-friends', 'Show only-friends') {
+    options[:only_friends] = true
+  }
 
-optp.on('-o', '--only-followers', 'Show only-followers') {
-  options[:only_followers] = true
-}
+  optp.on('-o', '--only-followers', 'Show only-followers') {
+    options[:only_followers] = true
+  }
 
-optp.separator '  If none of -m/-r/-o are specified, display all 3 categories.'
+  optp.separator '  If none of -m/-r/-o are specified, display all 3 categories.'
 
-optp.parse!
+  begin
+    optp.parse!
+  rescue OptionParser::ParseError => err
+    warn "Error parsing command line: #{err}\n\n"
+    warn optp
+    exit 1
+  end
 
-if !options[:mutual_friends] && !options[:only_friends] && !options[:only_followers]
-  # If none of the 3 options are specified, show everything.
-  options[:mutual_friends] = options[:only_friends] = options[:only_followers] = true
+  if !options[:mutual_friends] && !options[:only_friends] && !options[:only_followers]
+    # If none of the 3 options are specified, show everything.
+    options[:mutual_friends] = options[:only_friends] = options[:only_followers] = true
+  end
+
+  options
 end
 
+options = parse_opts
 web = nil
 begin
   setup_firefox_path
