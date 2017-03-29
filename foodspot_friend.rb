@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
-# This script uses Selenium WebDriver and Safari to scrape the friends and
-# followers lists of the currently logged-in Foodspotting user.
+# This script uses Selenium WebDriver and Firefox to scrape the friends and
+# followers lists of a Foodspotting user.
 # Then it groups the contacts into 3 sets: mutual friends, only followers, and
 # only following.
 
@@ -15,7 +15,7 @@ def get_user_name web
   url = 'http://foodspotting.com/me'
   web.get url
   m = web.current_url.match(%r{foodspotting\.com/([^/]+)$})
-  raise 'Unable to retrieve user name. Please log in to Foodspotting before running this script.' unless m
+  raise 'Unable to retrieve user name.' unless m
   m[1]
 end
 
@@ -62,41 +62,88 @@ def show_list flist
   }
 end
 
-options = {}
-
-optp = OptionParser.new
-
-optp.banner = "Usage: #{File.basename $PROGRAM_NAME} [options]"
-
-optp.on('-h', '-?', '--help', 'Option help') {
-  puts optp
-  exit
-}
-
-optp.on('-m', '--mutual', 'Show mutual friends') {
-  options[:mutual_friends] = true
-}
-
-optp.on('-r', '--only-friends', 'Show only-friends') {
-  options[:only_friends] = true
-}
-
-optp.on('-o', '--only-followers', 'Show only-followers') {
-  options[:only_followers] = true
-}
-
-optp.separator '  If none of -m/-r/-o are specified, display all 3 categories.'
-
-optp.parse!
-
-if !options[:mutual_friends] && !options[:only_friends] && !options[:only_followers]
-  # If none of the 3 options are specified, show everything.
-  options[:mutual_friends] = options[:only_friends] = options[:only_followers] = true
+# Wait for user to log in to Foodspotting, if necessary.
+def check_login web
+  url = 'https://www.foodspotting.com'
+  web.get url
+  begin
+    web.find_element(id: 'mini-profile')
+  rescue Selenium::WebDriver::Error::NoSuchElementError
+    puts 'Please log in to Foodspotting'
+    wait = Selenium::WebDriver::Wait.new(timeout: 900)
+    wait.until { web.find_element(id: 'mini-profile') }
+  end
 end
 
+# Use Spotlight to find the Firefox binary.
+def setup_firefox_path
+  firefox_app = nil
+  IO.popen('mdfind "kMDItemFSName = Firefox*.app"') { |io|
+    firefox_app = io.gets
+  }
+  raise "Can't find Firefox app bundle" unless firefox_app
+  firefox_app.chomp!
+
+  Selenium::WebDriver::Firefox::Binary.path = File.join(firefox_app, 'Contents/MacOS/firefox')
+end
+
+def parse_opts
+  options = {}
+
+  optp = OptionParser.new
+
+  optp.banner = <<-EOM
+This script uses Selenium WebDriver and Firefox to scrape the friends and
+followers lists of a Foodspotting user.
+Then it groups the contacts into 3 sets: mutual friends, only followers, and
+only following.
+
+Usage: #{File.basename $PROGRAM_NAME} [options]
+  EOM
+
+  optp.on('-h', '-?', '--help', 'Option help') {
+    puts optp
+    exit
+  }
+
+  optp.on('-m', '--mutual', 'Show mutual friends') {
+    options[:mutual_friends] = true
+  }
+
+  optp.on('-r', '--only-friends', 'Show only-friends') {
+    options[:only_friends] = true
+  }
+
+  optp.on('-o', '--only-followers', 'Show only-followers') {
+    options[:only_followers] = true
+  }
+
+  optp.separator '  If none of -m/-r/-o are specified, display all 3 categories.'
+
+  begin
+    optp.parse!
+  rescue OptionParser::ParseError => err
+    warn "Error parsing command line: #{err}\n\n"
+    warn optp
+    exit 1
+  end
+
+  if !options[:mutual_friends] && !options[:only_friends] && !options[:only_followers]
+    # If none of the 3 options are specified, show everything.
+    options[:mutual_friends] = options[:only_friends] = options[:only_followers] = true
+  end
+
+  options
+end
+
+options = parse_opts
 web = nil
 begin
-  web = Selenium::WebDriver.for :safari
+  setup_firefox_path
+  web = Selenium::WebDriver.for :firefox
+
+  check_login web
+
   username = get_user_name web
 
   followers = Set.new(process_list(:followers, username, web))
