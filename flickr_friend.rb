@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
-# This script uses Selenium WebDriver and Safari to scrape the Flickr friends
-# and followers lists of the currently logged-in Flickr user.
+# This script uses Selenium WebDriver and Firefox to scrape the Flickr friends
+# and followers lists of a Flickr user.
 # Then it groups the contacts into 3 sets: mutual friends, only followers, and
 # only following.
 
@@ -67,6 +67,7 @@ def show_list flist
   }
 end
 
+# Wait for user to log in to Flickr, if necessary.
 def check_login web
   url = 'https://www.flickr.com/people/me'
   web.get url
@@ -79,6 +80,7 @@ def check_login web
   wait.until { web.current_url.match(%r{flickr\.com/people}) }
 end
 
+# Use Spotlight to find the Firefox binary.
 def setup_firefox_path
   firefox_app = nil
   IO.popen('mdfind "kMDItemFSName = Firefox*.app"') { |io|
@@ -94,7 +96,14 @@ options = {}
 
 optp = OptionParser.new
 
-optp.banner = "Usage: #{File.basename $PROGRAM_NAME} [options]"
+optp.banner = <<-EOM
+This script uses Selenium WebDriver and Firefox to scrape the Flickr friends
+and followers lists of a Flickr user.
+Then it groups the contacts into 3 sets: mutual friends, only followers, and
+only following.
+
+Usage: #{File.basename $PROGRAM_NAME} [options]
+EOM
 
 optp.on('-h', '-?', '--help', 'Option help') {
   puts optp
