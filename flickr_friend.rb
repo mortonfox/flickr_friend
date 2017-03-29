@@ -79,6 +79,17 @@ def check_login web
   wait.until { web.current_url.match(%r{flickr\.com/people}) }
 end
 
+def setup_firefox_path
+  firefox_app = nil
+  IO.popen('mdfind "kMDItemFSName = Firefox*.app"') { |io|
+    firefox_app = io.gets
+  }
+  raise "Can't find Firefox app bundle" unless firefox_app
+  firefox_app.chomp!
+
+  Selenium::WebDriver::Firefox::Binary.path = File.join(firefox_app, 'Contents/MacOS/firefox')
+end
+
 options = {}
 
 optp = OptionParser.new
@@ -113,7 +124,7 @@ end
 
 web = nil
 begin
-  Selenium::WebDriver::Firefox::Binary.path = '/Applications/FirefoxDeveloperEdition.app/Contents/MacOS/firefox'
+  setup_firefox_path
   web = Selenium::WebDriver.for :firefox
 
   check_login web
