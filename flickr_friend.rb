@@ -67,6 +67,18 @@ def show_list flist
   }
 end
 
+def check_login web
+  url = 'https://www.flickr.com/people/me'
+  web.get url
+  m = web.current_url.match(/login\.yahoo\.com/)
+  return unless m
+
+  puts 'Please log in to Flickr'
+
+  wait = Selenium::WebDriver::Wait.new(timeout: 900)
+  wait.until { web.current_url.match(%r{flickr\.com/people}) }
+end
+
 options = {}
 
 optp = OptionParser.new
@@ -101,7 +113,10 @@ end
 
 web = nil
 begin
-  web = Selenium::WebDriver.for :safari
+  Selenium::WebDriver::Firefox::Binary.path = '/Applications/FirefoxDeveloperEdition.app/Contents/MacOS/firefox'
+  web = Selenium::WebDriver.for :firefox
+
+  check_login web
 
   following = Set.new(process_list(:following, web))
   follower = Set.new(process_list(:follower, web))
